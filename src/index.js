@@ -12,7 +12,7 @@ const refs = {
 };
 
 function createMarkupList(countries) {
-  const markup = countries
+  return countries
     .map(country => {
       return `<li>
         <img src="${country.flags.svg}" alt="flag" width="35" height="25">
@@ -21,12 +21,10 @@ function createMarkupList(countries) {
       `;
     })
     .join(' ');
-
-  refs.list.insertAdjacentHTML('beforeend', markup);
 }
 
 function createMarkupInfo(countries) {
-  const markup = countries
+  return countries
     .map(country => {
       return `<ul>
       <li>
@@ -49,17 +47,14 @@ function createMarkupInfo(countries) {
        `;
     })
     .join(' ');
-
-  refs.informations.insertAdjacentHTML('beforeend', markup);
 }
 
 function handleInput(e) {
   const inputValue = e.target.value.trim();
   console.log(inputValue);
+  updateInfo();
 
-  if (inputValue === '') {
-    clear();
-    return;
+  if (!inputValue) {
   }
 
   fetchCountries(inputValue)
@@ -69,11 +64,11 @@ function handleInput(e) {
           'Too many matches found. Please enter a more specific name.'
         );
       } else if (countries.length >= 2 && countries.length <= 10) {
-        clear();
-        createMarkupList(countries);
+        const markup = createMarkupList(countries);
+        updateInfo(markup);
       } else if (countries.length === 1) {
-        clear();
-        createMarkupInfo(countries);
+        const markup = createMarkupInfo(countries);
+        updateInfo(``, markup);
       }
     })
     .catch(ifCatch);
@@ -81,13 +76,11 @@ function handleInput(e) {
 
 refs.input.addEventListener('input', debounce(handleInput, DEBOUNCE_DELAY));
 
-function clear() {
-  refs.list.innerHTML = '';
-  refs.informations.innerHTML = '';
+function updateInfo(list = ``, info = ``) {
+  refs.list.innerHTML = list;
+  refs.informations.innerHTML = info;
 }
 
 function ifCatch(error) {
-  if (error) {
-    Notify.failure('Oops, there is no country with that name');
-  }
+  Notify.failure('Oops, there is no country with that name');
 }
